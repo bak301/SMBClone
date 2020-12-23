@@ -7,11 +7,15 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float damage;
     [SerializeField] private float side;
     [SerializeField] private float speed;
+    
+    private string owner;
+    private Vector3 direction;
     private float lifetime;
     private float timer;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
+        direction = Vector3.left;
         lifetime = 3;
         timer = 0;
     }
@@ -19,7 +23,7 @@ public class Bullet : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.Translate(Vector3.right * side * Time.deltaTime * speed);
+        transform.Translate(direction * Time.deltaTime * speed);
         timer += Time.deltaTime;
 
         if (timer > lifetime)
@@ -31,12 +35,25 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        IActor damageReceiver = collision.gameObject.GetComponent<IActor>();
-        if (damageReceiver != null)
+        if (collision.gameObject.name != owner)
         {
-            damageReceiver.ReceiveDamage(damage);
-            SimplePool.Despawn(gameObject);
-        }
-        
+            Debug.Log($"{owner} shot {collision.gameObject.name}");
+            IActor damageReceiver = collision.gameObject.GetComponent<IActor>();
+            if (damageReceiver != null)
+            {
+                damageReceiver.ReceiveDamage(damage);
+                SimplePool.Despawn(gameObject);
+            }
+        } 
+    }
+
+    public void SetBulletDirection(Vector3 direction)
+    {
+        this.direction = direction;
+    }
+
+    public void SetOwner(string name)
+    {
+        this.owner = name;
     }
 }

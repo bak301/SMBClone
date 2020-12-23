@@ -44,7 +44,7 @@ public class EnemyShooter : EnemyBase, IEnemy, IActor
                                         transform.position.y,
                                         transform.position.z);
         
-        SimplePool.Spawn(bullet, position,Quaternion.identity);
+        SimplePool.Spawn(bullet, position,Quaternion.identity).SetOwner(name);
     }
 
     public void ReceiveDamage(float damage)

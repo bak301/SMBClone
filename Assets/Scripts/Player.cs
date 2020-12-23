@@ -21,6 +21,7 @@ public class Player : MonoBehaviour, IActor
     [SerializeField] private float fallSpeed;
     [SerializeField] private float slideSpeed;
     [SerializeField] private float moveSpeed;
+    [SerializeField] private Bullet bullet;
 
     private RightSideCollider rightCollider;
     private LeftSideCollider leftCollider;
@@ -30,6 +31,7 @@ public class Player : MonoBehaviour, IActor
     internal bool isRightCollided;
     internal bool isGrounded;
     internal bool isDashing;
+    internal bool isInvulnerable;
 
     internal State state;
     private Transform player;
@@ -63,6 +65,13 @@ public class Player : MonoBehaviour, IActor
         isGrounded = groundCheck.isCollided;
 
         UpdateState();
+
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            Bullet firingBullet = SimplePool.Spawn(bullet, transform.position + new Vector3(facing * 1.5f, 0, 0), Quaternion.identity);
+            firingBullet.SetBulletDirection(Vector3.right * facing);
+            firingBullet.SetOwner(name);
+        }
 
         switch (state)
         {
@@ -141,7 +150,7 @@ public class Player : MonoBehaviour, IActor
                 break;
         }
 
-        Debug.Log(state);
+        //Debug.Log(state);
     }
 
     private void UpdateState()
@@ -230,6 +239,13 @@ public class Player : MonoBehaviour, IActor
         state = State.GROUND;
     }
 
+    private IEnumerator ActivateInvulnerability()
+    {
+        isInvulnerable = true;
+        yield return new WaitForSeconds(1.5f);
+        isInvulnerable = false;
+    }
+
     private void MoveDown()
     {
         player.Translate(Vector3.down * Time.deltaTime * fallSpeed);
@@ -282,7 +298,14 @@ public class Player : MonoBehaviour, IActor
 
     public void ReceiveDamage(float damage)
     {
-        health -= damage;
+        if (isInvulnerable)
+        {
+            return;
+        } else
+        {
+            health -= damage;
+            StartCoroutine(ActivateInvulnerability());
+        }
     }
 
     public void OnDeath()
