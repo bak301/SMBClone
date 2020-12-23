@@ -26,10 +26,12 @@ public class Player : MonoBehaviour, IActor
     private RightSideCollider rightCollider;
     private LeftSideCollider leftCollider;
     private GroundCheck groundCheck;
+    private HeadCheck headCheck;
 
     internal bool isLeftCollided;
     internal bool isRightCollided;
     internal bool isGrounded;
+    internal bool isHeadCollided;
     internal bool isDashing;
     internal bool isInvulnerable;
 
@@ -50,6 +52,7 @@ public class Player : MonoBehaviour, IActor
         leftCollider = GetComponentInChildren<LeftSideCollider>();
         rightCollider = GetComponentInChildren<RightSideCollider>();
         groundCheck = GetComponentInChildren<GroundCheck>();
+        headCheck = GetComponentInChildren<HeadCheck>();
     }
 
     private void FixedUpdate()
@@ -63,6 +66,7 @@ public class Player : MonoBehaviour, IActor
         isRightCollided = rightCollider.isCollided;
         isLeftCollided = leftCollider.isCollided;
         isGrounded = groundCheck.isCollided;
+        isHeadCollided = headCheck.isCollided;
 
         UpdateState();
 
@@ -155,6 +159,11 @@ public class Player : MonoBehaviour, IActor
 
     private void UpdateState()
     {
+        if (isHeadCollided)
+        {
+            state = State.FALL;
+        }
+
         // SLIDE => FALL
         if (state == State.SLIDE && (isRightCollided || isLeftCollided) == false)
         {
@@ -190,7 +199,7 @@ public class Player : MonoBehaviour, IActor
     {
         state = State.JUMP;
         float airTimer = 0;
-        while (airTimer < duration /*&& state != State.SLIDE*/)
+        while (airTimer < duration && isHeadCollided == false /*&& state != State.SLIDE*/)
         {
             airTimer += Time.deltaTime;
             MoveUp(1);

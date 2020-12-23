@@ -2,10 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using System;
+
+public enum BossBattleState
+{
+    IDLE,
+    NORMAL,
+    RAGED,
+    RAMPANT,
+    DEAD
+}
 
 public class Boss : EnemyBase, IActor
 {
-    [SerializeField] private float rageThreshold;
+    [SerializeField] private float maxHealth;
+    [SerializeField] private float rageThresholdRate;
     [SerializeField] private float moveSpeed;
     [SerializeField] private float fireInterval;
     [SerializeField] private Bullet bullet;
@@ -15,6 +26,7 @@ public class Boss : EnemyBase, IActor
 
     private float fireTimer;
     private Vector3 direction;
+    private BossBattleState state;
 
     // Start is called before the first frame update
     void Start()
@@ -22,6 +34,7 @@ public class Boss : EnemyBase, IActor
         isRaged = false;
         isEngaged = false;
         fireTimer = 0;
+        health = maxHealth;
     }
 
     void FixedUpdate()
@@ -32,17 +45,46 @@ public class Boss : EnemyBase, IActor
     void Update()
     {
         direction = (target.position - transform.position).normalized;
-
-        if (isEngaged)
+        UpdateState();
+ 
+        switch (state)
         {
-            if (isRaged == false)
-            {
+            case BossBattleState.IDLE:
+                break;
+            case BossBattleState.NORMAL:
                 Chase(1);
                 Fire(3);
-            } else
-            {
+                break;
+            case BossBattleState.RAGED:
                 Chase(2);
-                Fire(3);
+                Fire(5);
+                break;
+            case BossBattleState.RAMPANT:
+                
+            case BossBattleState.DEAD:
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void UpdateState()
+    {
+        if (state != BossBattleState.RAMPANT)
+        {
+            if (isEngaged)
+            {
+                state = BossBattleState.NORMAL;
+            }
+
+            if (isRaged)
+            {
+                state = BossBattleState.RAGED;
+            }
+
+            if (health < 0)
+            {
+                state = BossBattleState.DEAD;
             }
         }
     }
@@ -57,12 +99,22 @@ public class Boss : EnemyBase, IActor
 
     private IEnumerator Rampant()
     {
+        isRaged = true;
+        state = BossBattleState.RAMPANT;
+
+        transform.GetComponent<SpriteRenderer>().color = new Color(255, 50, 0);
+        transform.DOScaleX(20, 0.5f);
+        transform.DOScaleY(20, 0.5f);
+        transform.DOMoveX(171, 1);
+        transform.DOMoveY(transform.position.y + 0.35f, 0.1f);
+        //transform.position = new Vector3(171, transform.position.y, transform.position.z);
+
         yield return new WaitForSeconds(2);
-        transform.position = new Vector3(171, transform.position.y, transform.position.z);
+        StartCoroutine(FlowerShot(100));
         DOTween.Sequence()
-            .Append(transform.DOMoveX(transform.position.x - 38, 2).SetEase(Ease.Linear))
-            .Append(transform.DOMoveX(transform.position.x, 2).SetEase(Ease.Linear))
-            .SetLoops(3);
+            .Append(transform.DOMoveX(transform.position.x - 38, 1f).SetEase(Ease.Linear))
+            .Append(transform.DOMoveX(transform.position.x, 1f).SetEase(Ease.Linear))
+            .SetLoops(3).OnComplete(() => state = BossBattleState.RAGED);
     }
 
     private void Fire(int count)
@@ -83,7 +135,20 @@ public class Boss : EnemyBase, IActor
         for (int i = 0; i < count; i++)
         {
             yield return new WaitForSeconds(0.2f);
-            FireBullet(bullet);
+            FireBullet(bullet, direction);
+        }
+    }
+
+    private IEnumerator FlowerShot(int count)
+    {
+
+        for (int i = 0; i < count; i++)
+        {
+            yield return new WaitForSeconds(0.2f);
+            FireBullet(bullet, Quaternion.AngleAxis(25 * i, Vector3.forward) * direction);
+            FireBullet(bullet, Quaternion.AngleAxis(25 * i + 90, Vector3.forward) * direction);
+            FireBullet(bullet, Quaternion.AngleAxis(25 * i + 180, Vector3.forward) * direction);
+            FireBullet(bullet, Quaternion.AngleAxis(25 * i + 270, Vector3.forward) * direction);
         }
     }
 
@@ -95,12 +160,17 @@ public class Boss : EnemyBase, IActor
         }
     }
 
-    public void FireBullet(Bullet bullet)
+    public void FireBullet(Bullet bullet, Vector3 direction)
     {
         Bullet firingBullet = SimplePool.Spawn(bullet, transform.position, Quaternion.identity);
 
         firingBullet.SetOwner(name);
         firingBullet.SetBulletDirection(direction);
+    }
+
+    public void FireBullet(Bullet bullet)
+    {
+
     }
 
     public void OnDeath()
@@ -124,14 +194,9 @@ public class Boss : EnemyBase, IActor
         if (health < 0)
         {
             OnDeath();
-        } else if (health < rageThreshold && isRaged == false)
+        } else if (health < rageThresholdRate * maxHealth && isRaged == false)
         {
             StartCoroutine(Rampant());
-            isRaged = true;
-            transform.GetComponent<SpriteRenderer>().color = new Color(255, 50, 0);
-            transform.DOScaleX(20, 0.5f);
-            transform.DOScaleY(20, 0.5f);
-            transform.DOMoveY(transform.position.y + 0.35f, 0.1f);
         }
     }
 }

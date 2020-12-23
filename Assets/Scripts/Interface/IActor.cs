@@ -6,6 +6,5 @@ public interface IActor
 {
     void ReceiveDamage(float damage);
     void OnDeath();
-
     void FireBullet(Bullet bullet);
 }
