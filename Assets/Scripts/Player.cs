@@ -199,8 +199,12 @@ public class Player : MonoBehaviour, IActor
     {
         state = State.JUMP;
         float airTimer = 0;
-        while (airTimer < duration && isHeadCollided == false /*&& state != State.SLIDE*/)
+        while (airTimer < duration)
         {
+            if (isHeadCollided)
+            {
+                break;
+            }
             airTimer += Time.deltaTime;
             MoveUp(1);
             yield return null;
@@ -213,8 +217,12 @@ public class Player : MonoBehaviour, IActor
         float airTimer = 0;
         float wallSide = isLeftCollided ? -1 : 1;
 
-        while (airTimer < wallJumpDuration /*&& state != State.SLIDE*/)
+        while (airTimer < wallJumpDuration)
         {
+            if (isHeadCollided)
+            {
+                break;
+            }
             yield return null;
             airTimer += Time.deltaTime;
             PushBack(-1 * wallSide);
@@ -226,6 +234,10 @@ public class Player : MonoBehaviour, IActor
         airTimer = 0;
         while (airTimer < jumpDuration /*&& state != State.SLIDE*/)
         {
+            if (isHeadCollided)
+            {
+                break;
+            }
             airTimer += Time.deltaTime;
             MoveUp(1);
             yield return null;

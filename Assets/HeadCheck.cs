@@ -5,6 +5,7 @@ using UnityEngine;
 public class HeadCheck : MonoBehaviour
 {
     internal bool isCollided;
+    [SerializeField] private GameObject player;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,8 +22,8 @@ public class HeadCheck : MonoBehaviour
     {
         if (collision.gameObject.name.Contains("wall"))
         {
-            Debug.Log("HEAD IS COLLIDED");
             isCollided = true;
+            FixPosition(collision);
         }
     }
 
@@ -32,5 +33,12 @@ public class HeadCheck : MonoBehaviour
         {
             isCollided = false;
         }
+    }
+
+    private void FixPosition(Collider2D collision)
+    {
+        player.transform.position = new Vector3(player.transform.position.x,
+                                                collision.bounds.min.y - player.GetComponent<BoxCollider2D>().bounds.extents.y,
+                                                player.transform.position.z);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class BossArena : MonoBehaviour
 {
@@ -25,7 +26,7 @@ public class BossArena : MonoBehaviour
         if (collision.gameObject.name == "Player" && isDoorClosed == false)
         {
             boss.isEngaged = true;
-            door.transform.position -= new Vector3(0, 10, 0);
+            door.DOMoveY(door.position.y - 10, 1).SetEase(Ease.OutBounce);
             isDoorClosed = true;
         }
     }

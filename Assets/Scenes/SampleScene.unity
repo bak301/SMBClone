@@ -556,15 +556,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4ea718df5ec3e940b24582b4f2061d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 500
+  health: 200
+  rampantCooldown: 20
   maxHealth: 200
-  rageThresholdRate: 0.5
+  rageThresholdRate: 0.8
   moveSpeed: 5
   fireInterval: 3
+  collisionDamage: 5
   bullet: {fileID: 2095168535, guid: fb270f2f6ecc9954181d82d4fd8199f0, type: 3}
   target: {fileID: 1490148497}
   isEngaged: 0
   isRaged: 0
+  walls:
+  - {fileID: 2133947456}
+  - {fileID: 244898485}
+  - {fileID: 2134268125}
+  - {fileID: 721453634}
 --- !u!50 &250985899
 Rigidbody2D:
   serializedVersion: 4
@@ -944,6 +951,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18e75040fa3e57a4bab6b48e2ef968a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boss: {fileID: 250985898}
   player: {fileID: 1490148497}
   offsetY: 0
 --- !u!20 &519420031
@@ -973,7 +981,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 13
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -997,7 +1005,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 152, y: 6, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1025,7 +1033,7 @@ PrefabInstance:
     - target: {fileID: 5108935858571681976, guid: 0afbe14ae539d234e83e8fd699727e9d,
         type: 3}
       propertyPath: m_Name
-      value: wall
+      value: wall-arena
       objectReference: {fileID: 0}
     - target: {fileID: 5108935858571681977, guid: 0afbe14ae539d234e83e8fd699727e9d,
         type: 3}
@@ -1065,7 +1073,7 @@ PrefabInstance:
     - target: {fileID: 5108935858571681978, guid: 0afbe14ae539d234e83e8fd699727e9d,
         type: 3}
       propertyPath: m_Size.y
-      value: 18.23153
+      value: 22.12391
       objectReference: {fileID: 0}
     - target: {fileID: 5108935858571681979, guid: 0afbe14ae539d234e83e8fd699727e9d,
         type: 3}
@@ -1075,7 +1083,7 @@ PrefabInstance:
     - target: {fileID: 5108935858571681979, guid: 0afbe14ae539d234e83e8fd699727e9d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 15.986607
+      value: 16.05
       objectReference: {fileID: 0}
     - target: {fileID: 5108935858571681979, guid: 0afbe14ae539d234e83e8fd699727e9d,
         type: 3}
@@ -1993,7 +2001,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fcd82df5ed859249b97f0040f4d4e5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 100
+  health: 50
   jumpSpeed: 20
   fallSpeed: 20
   slideSpeed: 5
@@ -2057,7 +2065,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1490148493}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -24.74, y: 21.116, z: -3}
+  m_LocalPosition: {x: -27.08, y: 21.13, z: -3}
   m_LocalScale: {x: 10, y: 10, z: 1}
   m_Children:
   - {fileID: 1813854255}
@@ -2748,6 +2756,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b01a85bc38558a4a941e96c71c13d54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 1490148493}
 --- !u!1 &1813854254
 GameObject:
   m_ObjectHideFlags: 0
@@ -2793,7 +2802,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.0017903149, y: -0.052187122}
+  m_Offset: {x: 0.0017903149, y: -0.054052297}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -2804,7 +2813,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.031015404, y: 0.03678599}
+  m_Size: {x: 0.031015404, y: 0.04051634}
   m_EdgeRadius: 0
 --- !u!114 &1813854257
 MonoBehaviour:
@@ -3265,7 +3274,7 @@ PrefabInstance:
     - target: {fileID: 5108935858571681976, guid: 0afbe14ae539d234e83e8fd699727e9d,
         type: 3}
       propertyPath: m_Name
-      value: wall (1)
+      value: wall-top-arena
       objectReference: {fileID: 0}
     - target: {fileID: 5108935858571681977, guid: 0afbe14ae539d234e83e8fd699727e9d,
         type: 3}
