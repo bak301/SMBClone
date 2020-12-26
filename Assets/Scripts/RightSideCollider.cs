@@ -24,7 +24,10 @@ public class RightSideCollider : MonoBehaviour
         if (collision.gameObject.name.Contains("wall"))
         {
             isCollided = true;
-            FixPosition(collision);
+            if (collision.bounds.min.x > player.transform.position.x) // if the fixed position is way too big, larger than twice the model size, we not doing it.
+            {
+                FixPosition(collision);
+            }
         }
     }
 

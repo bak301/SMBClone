@@ -5,7 +5,10 @@ using UnityEngine;
 public class GroundCheck : MonoBehaviour
 {
     internal bool isCollided;
+    [SerializeField] private LeftSideCollider leftCollider;
+    [SerializeField] private RightSideCollider rightCollider;
     [SerializeField] private GameObject player;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,7 +26,10 @@ public class GroundCheck : MonoBehaviour
         if (collision.gameObject.name.Contains("wall"))
         {
             isCollided = true;
-            FixPosition(collision);
+            if (collision.bounds.max.y < player.transform.position.y)
+            {
+                FixPosition(collision);
+            };
         }
     }
 

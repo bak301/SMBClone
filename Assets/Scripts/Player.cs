@@ -2,16 +2,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public enum State
 {
-    GROUND = 0,
-    SLIDE = 1,
-    FALL = 2,
-    WALLJUMP = 3,
-    JUMP = 4,
-    DASH = 5,
-    DEAD = 6
+    GROUND,
+    SLIDE,
+    FALL,
+    WALLJUMP,
+    JUMP,
+    DASH,
+    KNOCKBACK,
+    DEAD
 }
 
 public class Player : MonoBehaviour, IActor
@@ -22,6 +24,7 @@ public class Player : MonoBehaviour, IActor
     [SerializeField] private float slideSpeed;
     [SerializeField] private float moveSpeed;
     [SerializeField] private Bullet bullet;
+    [SerializeField] private FixedJoystick joystick;
 
     private RightSideCollider rightCollider;
     private LeftSideCollider leftCollider;
@@ -37,6 +40,8 @@ public class Player : MonoBehaviour, IActor
 
     internal State state;
     private Transform player;
+    private Rigidbody2D body;
+    private SpriteRenderer rend;
     private float facing; // -1 : left , 1 : right
 
 
@@ -48,6 +53,8 @@ public class Player : MonoBehaviour, IActor
         state = State.GROUND;
         facing = 1;
         player = GetComponent<Transform>();
+        rend = GetComponent<SpriteRenderer>();
+        body = GetComponent<Rigidbody2D>();
 
         leftCollider = GetComponentInChildren<LeftSideCollider>();
         rightCollider = GetComponentInChildren<RightSideCollider>();
@@ -80,10 +87,7 @@ public class Player : MonoBehaviour, IActor
         switch (state)
         {
             case State.GROUND:
-                if (Input.GetKey("left") || Input.GetKey("right"))
-                {
-                    MoveHorizontal();
-                }
+                HandleHorizontalMovement();
 
                 if (Input.GetKeyDown("x") && isGrounded == true)
                 {
@@ -117,30 +121,25 @@ public class Player : MonoBehaviour, IActor
                             if ((Input.GetKey("left") && isRightCollided)
                                 || (Input.GetKey("right") && isLeftCollided))
                             {
-                                MoveHorizontal();
+                                MoveHorizontalJoystick();
+                                MoveHorizontalKeyboard();
                             }
                         }
                     }
                 }
-                else if (Input.GetKey("left") || Input.GetKey("right"))
+                else
                 {
-                    MoveHorizontal();
+                    HandleHorizontalMovement();
                 }
                 break;
 
             case State.FALL:
-                if (Input.GetKey("left") || Input.GetKey("right"))
-                {
-                    MoveHorizontal();
-                }
+                HandleHorizontalMovement();
                 MoveDown();
                 break;
 
             case State.JUMP:
-                if (Input.GetKey("left") || Input.GetKey("right"))
-                {
-                    MoveHorizontal();
-                }
+                HandleHorizontalMovement();
                 break;
 
             case State.DASH:
@@ -148,13 +147,18 @@ public class Player : MonoBehaviour, IActor
                 {
                     StartCoroutine(Jump(0.3f));
                 }
+
+                if (isRightCollided || isLeftCollided)
+                {
+                    StopCoroutine(Dash(0.3f, facing));           
+                }
+                break;
+            case State.KNOCKBACK:
                 break;
 
             default:
                 break;
         }
-
-        //Debug.Log(state);
     }
 
     private void UpdateState()
@@ -232,7 +236,7 @@ public class Player : MonoBehaviour, IActor
         // add a small normal jump
         state = State.JUMP;
         airTimer = 0;
-        while (airTimer < jumpDuration /*&& state != State.SLIDE*/)
+        while (airTimer < jumpDuration)
         {
             if (isHeadCollided)
             {
@@ -249,22 +253,35 @@ public class Player : MonoBehaviour, IActor
     {
         float dashTimer = 0;
         state = State.DASH;
-        while (dashTimer < dashDuration && 
-                (!isRightCollided && !isLeftCollided)
-              )
+        while (dashTimer < dashDuration 
+            && !isRightCollided 
+            && !isLeftCollided)
         {
+            yield return null;
             dashTimer += Time.deltaTime;
             FastMoveDirection(side);
-            yield return null;
         }
-        state = State.GROUND;
+
+        if (isRightCollided || isLeftCollided)
+        {
+            state = State.SLIDE;
+        } else
+        {
+            state = State.GROUND;
+        }
     }
 
-    private IEnumerator ActivateInvulnerability()
+    private void HandleHorizontalMovement()
     {
-        isInvulnerable = true;
-        yield return new WaitForSeconds(1.5f);
-        isInvulnerable = false;
+        if (joystick.Horizontal != 0)
+        {
+            MoveHorizontalJoystick();
+        }
+
+        if (Input.GetKey("left") || Input.GetKey("right"))
+        {
+            MoveHorizontalKeyboard();
+        }
     }
 
     private void MoveDown()
@@ -282,13 +299,13 @@ public class Player : MonoBehaviour, IActor
         player.Translate(new Vector3(side * Time.deltaTime * jumpSpeed, 0, 0));
     }
 
-    private void MoveHorizontal()
+    private void MoveHorizontalKeyboard()
     {
         if (Input.GetAxis("Horizontal") != 0)
         {
             facing = Mathf.Sign(Input.GetAxis("Horizontal"));
         }
-        
+
         if (isLeftCollided)
         {
             player.Translate(new Vector3((Input.GetAxis("Horizontal") > 0 ? 1 : 0) * Time.deltaTime * moveSpeed,
@@ -303,6 +320,33 @@ public class Player : MonoBehaviour, IActor
         }
         else
         {
+            //body.MovePosition(new Vector2(body.position.x + facing * Time.deltaTime * moveSpeed, body.position.y));
+            player.Translate(new Vector3(facing * Time.deltaTime * moveSpeed, 0, 0));
+        }
+    }
+
+    private void MoveHorizontalJoystick()
+    {
+        if (joystick.Horizontal != 0)
+        {
+            facing = Mathf.Sign(joystick.Horizontal * -1);
+        }
+        
+        if (isLeftCollided)
+        {
+            player.Translate(new Vector3((joystick.Horizontal > 0 ? 1 : 0) * Time.deltaTime * moveSpeed,
+                                            0,
+                                            0));
+        }
+        else if (isRightCollided)
+        {
+            player.Translate(new Vector3((joystick.Horizontal < 0 ? -1 : 0) * Time.deltaTime * moveSpeed,
+                                            0,
+                                            0));
+        }
+        else
+        {
+            //body.MovePosition(new Vector2(body.position.x + facing * Time.deltaTime * moveSpeed, body.position.y));
             player.Translate(new Vector3(facing * Time.deltaTime * moveSpeed, 0, 0));
         }
     }
@@ -325,8 +369,28 @@ public class Player : MonoBehaviour, IActor
         } else
         {
             health -= damage;
+            Knockback();
             StartCoroutine(ActivateInvulnerability());
         }
+    }
+
+    private void Knockback()
+    {
+        state = State.KNOCKBACK;
+        transform.DOMoveX(transform.position.x + -1 * facing * 0.5f, 0.5f)
+            .OnComplete(() => state = State.FALL);
+    }
+
+    private IEnumerator ActivateInvulnerability()
+    {
+        isInvulnerable = true;
+        DOTween.Sequence()
+            .Append(rend.DOFade(0.5f, 0.05f))
+            .Append(rend.DOFade(1, 0.05f))
+            .SetLoops(15);
+
+        yield return new WaitForSeconds(1.5f);
+        isInvulnerable = false;
     }
 
     public void OnDeath()
@@ -334,12 +398,15 @@ public class Player : MonoBehaviour, IActor
         state = State.DEAD;
     }
 
-    public void FireBullet(Bullet bullet)
+    public void BasicAttack()
     {
-        SimplePool.Spawn(
-            bullet, 
-            transform.position, 
+        Bullet firingBullet = SimplePool.Spawn(
+            bullet,
+            transform.position,
             Quaternion.identity
         );
+
+        firingBullet.SetBulletDirection(Vector3.right * facing);
+        firingBullet.SetOwner(gameObject.name);
     }
 }

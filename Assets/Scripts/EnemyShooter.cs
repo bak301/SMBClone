@@ -33,12 +33,12 @@ public class EnemyShooter : EnemyBase, IEnemy, IActor
             fireTimer += Time.deltaTime;
         } else
         {
-            FireBullet(bullet);
+            BasicAttack();
             fireTimer = 0;
         }
     }
 
-    public void FireBullet(Bullet bullet)
+    public void BasicAttack()
     {
         Vector3 position = new Vector3(this.transform.position.x,
                                         transform.position.y,

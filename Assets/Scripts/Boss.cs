@@ -209,7 +209,7 @@ public class Boss : EnemyBase, IActor
         firingBullet.SetBulletDirection(direction);
     }
 
-    public void FireBullet(Bullet bullet)
+    public void BasicAttack()
     {
 
     }
@@ -218,13 +218,15 @@ public class Boss : EnemyBase, IActor
     {
         DOTween.Sequence()
             .Append(transform.DOShakeScale(2, 10, 50).SetEase(Ease.Linear))
-            .Append(transform.DOScale(0, 2).SetEase(Ease.InOutCubic));
+            .Append(transform.DOScale(0, 2).SetEase(Ease.InOutCubic))
+            .Append(walls[3].DOMoveY(walls[3].transform.position.y + 10, 1));
         StartCoroutine(Die());
     }
 
     private IEnumerator Die()
     {
         yield return new WaitForSeconds(4);
+        isEngaged = false;
         Destroy(gameObject);
     }
 
@@ -232,7 +234,7 @@ public class Boss : EnemyBase, IActor
     {
         health -= damage;
 
-        if (health < 0)
+        if (health < 0 && state != BossBattleState.DEAD)
         {
             OnDeath();
         } else if (health < rageThresholdRate * maxHealth && isRaged == false)

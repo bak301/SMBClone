@@ -5,6 +5,8 @@ using UnityEngine;
 public class HeadCheck : MonoBehaviour
 {
     internal bool isCollided;
+    [SerializeField] private LeftSideCollider leftCollider;
+    [SerializeField] private RightSideCollider rightCollider;
     [SerializeField] private GameObject player;
     // Start is called before the first frame update
     void Start()
@@ -23,7 +25,10 @@ public class HeadCheck : MonoBehaviour
         if (collision.gameObject.name.Contains("wall"))
         {
             isCollided = true;
-            FixPosition(collision);
+            if (collision.bounds.min.y > player.transform.position.y)
+            {
+                FixPosition(collision);
+            }
         }
     }
 

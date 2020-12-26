@@ -23,7 +23,10 @@ public class LeftSideCollider : MonoBehaviour
         if (collision.gameObject.name.Contains("wall"))
         {
             isCollided = true;
-            FixPosition(collision);
+            if (collision.bounds.max.x < player.transform.position.x)
+            {
+                FixPosition(collision);
+            }
         }
     }
 
