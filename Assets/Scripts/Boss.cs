@@ -182,11 +182,11 @@ public class Boss : EnemyBase, IActor
         {
             yield return new WaitForSeconds(0.13f);
             FireBullet(bullet, Quaternion.AngleAxis(offset * i, Vector3.forward) * Vector3.up);
-            FireBullet(bullet, Quaternion.AngleAxis(offset * i *1.1f + 60, Vector3.forward) * Vector3.up);
-            FireBullet(bullet, Quaternion.AngleAxis(offset * i *1.2f + 120, Vector3.forward) * Vector3.up);
-            FireBullet(bullet, Quaternion.AngleAxis(offset * i *1.3f + 180, Vector3.forward) * Vector3.up);
-            FireBullet(bullet, Quaternion.AngleAxis(offset * i *1.4f + 240, Vector3.forward) * Vector3.up);
-            FireBullet(bullet, Quaternion.AngleAxis(offset * i *1.5f + 300, Vector3.forward) * Vector3.up);
+            FireBullet(bullet, Quaternion.AngleAxis(offset * i + 60, Vector3.forward) * Vector3.up);
+            FireBullet(bullet, Quaternion.AngleAxis(offset * i + 120, Vector3.forward) * Vector3.up);
+            FireBullet(bullet, Quaternion.AngleAxis(offset * i + 180, Vector3.forward) * Vector3.up);
+            FireBullet(bullet, Quaternion.AngleAxis(offset * i + 240, Vector3.forward) * Vector3.up);
+            FireBullet(bullet, Quaternion.AngleAxis(offset * i + 300, Vector3.forward) * Vector3.up);
         }
 
         battleState = BossBattleState.RAGED;
@@ -204,7 +204,7 @@ public class Boss : EnemyBase, IActor
     {
         Bullet firingBullet = SimplePool.Spawn(bullet, transform.position, Quaternion.identity);
 
-        firingBullet.SetOwner(name);
+        firingBullet.SetParty(name);
         firingBullet.SetBulletDirection(direction);
     }
 
@@ -241,5 +241,10 @@ public class Boss : EnemyBase, IActor
             transform.DOMoveY(transform.position.y + 0.35f, 0.1f);
             StartCoroutine(FlowerFiring());
         }
+    }
+
+    public string GetParty()
+    {
+        return party;
     }
 }

@@ -15,15 +15,11 @@ public class EnemyBase : MonoBehaviour
     [SerializeField] protected EnemyState state;
     [SerializeField] protected float collisionDamage;
 
+    protected string party;
     // Start is called before the first frame update
     void Start()
     {
         this.state = EnemyState.IDLE;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        party = "enemy";
     }
 }

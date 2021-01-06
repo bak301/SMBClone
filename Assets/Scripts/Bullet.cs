@@ -8,7 +8,7 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float side;
     [SerializeField] private float speed;
     
-    private string owner;
+    private string party;
     private Vector3 direction;
     private float lifetime;
     private float timer;
@@ -35,10 +35,10 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.name != owner)
+        IActor damageReceiver = collision.gameObject.GetComponent<IActor>();
+        if (damageReceiver?.GetParty() != party)
         {
-            Debug.Log($"{owner} shot {collision.gameObject.name}");
-            IActor damageReceiver = collision.gameObject.GetComponent<IActor>();
+            Debug.Log($"{party} shot {collision.gameObject.name}");
             if (damageReceiver != null)
             {
                 damageReceiver.ReceiveDamage(damage);
@@ -52,8 +52,8 @@ public class Bullet : MonoBehaviour
         this.direction = direction;
     }
 
-    public void SetOwner(string name)
+    public void SetParty(string name)
     {
-        this.owner = name;
+        this.party = name;
     }
 }

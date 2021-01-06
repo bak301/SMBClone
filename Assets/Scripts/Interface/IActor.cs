@@ -7,4 +7,6 @@ public interface IActor
     void ReceiveDamage(float damage);
     void OnDeath();
     void BasicAttack();
+
+    string GetParty();
 }

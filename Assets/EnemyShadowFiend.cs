@@ -61,12 +61,12 @@ public class EnemyShadowFiend : EnemyBase, IActor
 
     private void WarningBeforeRaze(float range)
     {
-        SimplePool.Spawn(warning, transform.position + new Vector3(side * range, -1, 0), Quaternion.identity);
+        SimplePool.Spawn(warning, transform.position + new Vector3(side * range, 0, 0), Quaternion.identity);
     }
 
     private void Shadowraze(float range)
     {
-        SimplePool.Spawn(raze, transform.position + new Vector3(side*range, -3 , 0), Quaternion.identity);
+        SimplePool.Spawn(raze, transform.position + new Vector3(side*range, -2 , 0), Quaternion.identity);
     }
 
     public void OnDeath()
@@ -92,5 +92,10 @@ public class EnemyShadowFiend : EnemyBase, IActor
         {
             collision.GetComponent<IActor>().ReceiveDamage(collisionDamage);
         }
+    }
+
+    public string GetParty()
+    {
+        return party;
     }
 }

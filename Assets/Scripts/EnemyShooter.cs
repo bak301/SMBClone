@@ -44,16 +44,25 @@ public class EnemyShooter : EnemyBase, IEnemy, IActor
                                         transform.position.y,
                                         transform.position.z);
         
-        SimplePool.Spawn(bullet, position,Quaternion.identity).SetOwner(name);
+        SimplePool.Spawn(bullet, position,Quaternion.identity).SetParty(this.party);
     }
 
     public void ReceiveDamage(float damage)
     {
         health -= damage;
+        if (health < 0)
+        {
+            OnDeath();
+        }
     }
 
     public void OnDeath()
     {
-        throw new NotImplementedException();
+        Destroy(gameObject);
+    }
+
+    public string GetParty()
+    {
+        return party;
     }
 }

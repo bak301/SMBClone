@@ -40,7 +40,7 @@ public class Player : MonoBehaviour, IActor
 
     internal State state;
     private Transform player;
-    private Rigidbody2D body;
+    private string party;
     private SpriteRenderer rend;
     private float facing; // -1 : left , 1 : right
 
@@ -54,7 +54,7 @@ public class Player : MonoBehaviour, IActor
         facing = 1;
         player = GetComponent<Transform>();
         rend = GetComponent<SpriteRenderer>();
-        body = GetComponent<Rigidbody2D>();
+        party = "player";
 
         leftCollider = GetComponentInChildren<LeftSideCollider>();
         rightCollider = GetComponentInChildren<RightSideCollider>();
@@ -81,7 +81,7 @@ public class Player : MonoBehaviour, IActor
         {
             Bullet firingBullet = SimplePool.Spawn(bullet, transform.position + new Vector3(facing * 1.5f, 0, 0), Quaternion.identity);
             firingBullet.SetBulletDirection(Vector3.right * facing);
-            firingBullet.SetOwner(name);
+            firingBullet.SetParty(this.party);
         }
 
         switch (state)
@@ -408,6 +408,11 @@ public class Player : MonoBehaviour, IActor
         );
 
         firingBullet.SetBulletDirection(Vector3.right * facing);
-        firingBullet.SetOwner(gameObject.name);
+        firingBullet.SetParty(gameObject.name);
+    }
+
+    public string GetParty()
+    {
+        return party;
     }
 }
