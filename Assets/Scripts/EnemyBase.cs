@@ -13,6 +13,7 @@ public class EnemyBase : MonoBehaviour
 
     [SerializeField] protected float health;
     [SerializeField] protected EnemyState state;
+    [SerializeField] protected float collisionDamage;
 
     // Start is called before the first frame update
     void Start()

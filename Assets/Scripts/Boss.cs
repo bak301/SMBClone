@@ -21,7 +21,6 @@ public class Boss : EnemyBase, IActor
     [SerializeField] private float rageThresholdRate;
     [SerializeField] private float moveSpeed;
     [SerializeField] private float fireInterval;
-    [SerializeField] private float collisionDamage;
     [SerializeField] private Bullet bullet;
     [SerializeField] private Transform target;
     [SerializeField] internal bool isEngaged;
@@ -32,7 +31,7 @@ public class Boss : EnemyBase, IActor
     private float rampantTimer;
     private float fireTimer;
     private Vector3 direction;
-    private BossBattleState state;
+    private BossBattleState battleState;
 
     // Start is called before the first frame update
     void Start()
@@ -54,7 +53,7 @@ public class Boss : EnemyBase, IActor
         direction = (target.position - transform.position).normalized;
         UpdateState();
  
-        switch (state)
+        switch (battleState)
         {
             case BossBattleState.IDLE:
                 break;
@@ -88,7 +87,7 @@ public class Boss : EnemyBase, IActor
 
     private IEnumerator Rampant()
     {
-        state = BossBattleState.RAMPANT;
+        battleState = BossBattleState.RAMPANT;
         transform.DOMoveX(171, 1).OnComplete(()=>
         {
             DOTween.Sequence()
@@ -104,28 +103,28 @@ public class Boss : EnemyBase, IActor
                 .Join(walls[1].DOShakePosition(0.5f, 0.2f, 3))
                 .Join(walls[2].DOShakePosition(0.5f, 0.2f, 3))
                 .Join(walls[3].DOShakePosition(0.5f, 0.2f, 3))
-            .SetLoops(3).OnComplete(() => state = BossBattleState.RAGED);
+            .SetLoops(3).OnComplete(() => battleState = BossBattleState.RAGED);
         });
         yield return null;
     }
 
     private void UpdateState()
     {
-        if (state != BossBattleState.FLOWER && state != BossBattleState.RAMPANT)
+        if (battleState != BossBattleState.FLOWER && battleState != BossBattleState.RAMPANT)
         {
             if (isEngaged)
             {
-                state = BossBattleState.NORMAL;
+                battleState = BossBattleState.NORMAL;
             }
 
             if (isRaged)
             {
-                state = BossBattleState.RAGED;
+                battleState = BossBattleState.RAGED;
             }
 
             if (health < 0)
             {
-                state = BossBattleState.DEAD;
+                battleState = BossBattleState.DEAD;
             }
         }
     }
@@ -141,7 +140,7 @@ public class Boss : EnemyBase, IActor
     private IEnumerator FlowerFiring()
     {
         isRaged = true;
-        state = BossBattleState.FLOWER;
+        battleState = BossBattleState.FLOWER;
 
         GetComponent<SpriteRenderer>().color = new Color(1, 0.2f, 0);
         transform.DOScaleX(20, 0.5f);
@@ -190,7 +189,7 @@ public class Boss : EnemyBase, IActor
             FireBullet(bullet, Quaternion.AngleAxis(offset * i *1.5f + 300, Vector3.forward) * Vector3.up);
         }
 
-        state = BossBattleState.RAGED;
+        battleState = BossBattleState.RAGED;
     }
 
     public void Chase(float scale)
@@ -234,7 +233,7 @@ public class Boss : EnemyBase, IActor
     {
         health -= damage;
 
-        if (health < 0 && state != BossBattleState.DEAD)
+        if (health < 0 && battleState != BossBattleState.DEAD)
         {
             OnDeath();
         } else if (health < rageThresholdRate * maxHealth && isRaged == false)

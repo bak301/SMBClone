@@ -386,8 +386,9 @@ public class Player : MonoBehaviour, IActor
         isInvulnerable = true;
         DOTween.Sequence()
             .Append(rend.DOFade(0.5f, 0.05f))
+            .Append(rend.DOColor(new Color(1, 0, 0), 1.1f))
             .Append(rend.DOFade(1, 0.05f))
-            .SetLoops(15);
+            .Append(rend.DOColor(new Color(1, 1, 1), 0.3f));
 
         yield return new WaitForSeconds(1.5f);
         isInvulnerable = false;
